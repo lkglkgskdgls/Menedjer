@@ -19,11 +19,11 @@ search_query = StringVar(root)  # Для поисковой строки
 # Настройка стилей
 style = ttk.Style()
 style.configure("Treeview", 
-                font=('Segoe UI', 10), 
-                rowheight=25,
+                font=('Segoe UI', 11),
+                rowheight=28,
                 background="#f0f0f0",
                 fieldbackground="#f0f0f0")
-style.configure("Treeview.Heading", font=('Segoe UI', 10, 'bold'))
+style.configure("Treeview.Heading", font=('Segoe UI', 11, 'bold'))
 style.map("Treeview", background=[('selected', '#0078d7')])
 
 # Функция обновления списка файлов
@@ -165,16 +165,27 @@ def rename_item():
 root.title("DocHawk Explorer")
 root.geometry("900x600")
 root.iconbitmap(r"C:\Users\dokto\Downloads\icon.ico")
+root.grid_rowconfigure(2, weight=1)
 root.grid_columnconfigure(0, weight=1)
-root.grid_rowconfigure(1, weight=1)
 
-# Темная тема для поисковой строки
-search_frame = Frame(root, bg="#333")
-search_frame.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
+# Путь
+path_frame = Frame(root, bg="#333")
+path_frame.grid(row=0, column=0, sticky="ew")
+path_frame.grid_columnconfigure(1, weight=1)
 
-# Панель инструментов
-toolbar = Frame(search_frame, bg="#333")
-toolbar.pack(side=LEFT, padx=5)
+Label(path_frame, text="Путь:", font=('Segoe UI', 10, 'bold'), bg="#333", fg="white").grid(row=0, column=0, padx=5, pady=6, sticky="w")
+path_entry = Entry(path_frame, textvariable=current_path, font=('Segoe UI', 10),
+                   bd=0, relief="flat", bg="#555", fg="white", insertbackground="white")
+path_entry.grid(row=0, column=1, sticky="ew", padx=(0, 5), pady=6)
+
+# Панель инструментов и поиск (на одной линии)
+action_frame = Frame(root, bg="#333")
+action_frame.grid(row=1, column=0, sticky="ew", padx=0, pady=0)
+action_frame.grid_columnconfigure(1, weight=1)
+
+# Левая часть — кнопки
+toolbar = Frame(action_frame, bg="#333")
+toolbar.grid(row=0, column=0, sticky="w", padx=5, pady=5)
 
 Button(toolbar, text='←', command=go_back, font=('Arial', 12, 'bold'), 
        bg="#555", fg="white", bd=0, padx=10).pack(side=LEFT, padx=2)
@@ -185,25 +196,19 @@ Button(toolbar, text='✏️', command=rename_item, font=('Arial', 12),
 Button(toolbar, text='🗑️', command=delete_item, font=('Arial', 12), 
        bg="#555", fg="white", bd=0, padx=10).pack(side=LEFT, padx=2)
 
-# Поисковая строка
+# Правая часть — поиск
+search_frame = Frame(action_frame, bg="#333")
+search_frame.grid(row=0, column=1, sticky="e", padx=5, pady=5)
+
 search_entry = Entry(search_frame, textvariable=search_query, font=('Segoe UI', 10), 
                     bg="#555", fg="white", insertbackground="white", bd=0)
-search_entry.pack(side=LEFT, fill=X, expand=True, padx=10, pady=5)
+search_entry.pack(side=LEFT, fill=X, expand=True, padx=(0, 5), pady=0, ipady=2)
 Button(search_frame, text='🔍', command=path_change, font=('Arial', 12), 
-      bg="#555", fg="white", bd=0).pack(side=LEFT, padx=5)
-
-# Поле текущего пути
-path_frame = Frame(root)
-path_frame.grid(row=1, column=0, sticky="ew", padx=10)
-
-Label(path_frame, text="Путь:", font=('Segoe UI', 10, 'bold')).pack(side=LEFT)
-path_entry = Entry(path_frame, textvariable=current_path, font=('Segoe UI', 10), 
-                  bd=1, relief="solid")
-path_entry.pack(side=LEFT, fill=X, expand=True, padx=5)
+      bg="#555", fg="white", bd=0).pack(side=LEFT)
 
 # Таблица файлов
 tree_frame = Frame(root)
-tree_frame.grid(row=2, column=0, sticky="nsew", padx=10, pady=(0, 10))
+tree_frame.grid(row=2, column=0, sticky="nsew", padx=10, pady=(5, 10))
 
 tree = ttk.Treeview(tree_frame, columns=("Name", "Type", "Modified", "Size"), 
                    show="headings", selectmode="browse")
@@ -212,16 +217,17 @@ tree.heading("Type", text="Тип", anchor=W)
 tree.heading("Modified", text="Изменен", anchor=W)
 tree.heading("Size", text="Размер", anchor=W)
 
-tree.column("Name", width=300, anchor=W)
-tree.column("Type", width=100, anchor=W)
-tree.column("Modified", width=150, anchor=W)
-tree.column("Size", width=100, anchor=W)
+tree.column("Name", width=350, anchor=W)
+tree.column("Type", width=120, anchor=W)
+tree.column("Modified", width=180, anchor=W)
+tree.column("Size", width=120, anchor=W)
 
 scrollbar = ttk.Scrollbar(tree_frame, orient="vertical", command=tree.yview)
 tree.configure(yscrollcommand=scrollbar.set)
 
 tree.pack(side=LEFT, fill=BOTH, expand=True)
 scrollbar.pack(side=RIGHT, fill=Y)
+
 
 # Привязка событий
 current_path.trace('w', path_change)
